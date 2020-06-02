@@ -4,17 +4,18 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from time import sleep
 from random import randint
+import string
 
 records = []
-alphabet = ['A']
-# alphabet = list(string.ascii_uppercase)
+# alphabet = ['B']
+alphabet = list(string.ascii_uppercase)
 
 
 def get_general_urls():
     for letter in alphabet:
         general_url = 'https://www.tekstowo.pl/artysci_na,' + letter
         # number of sub-pages to scrap:
-        for i in range(1, 4):
+        for i in range(1, 10):
             url_page = general_url + ',strona,' + str(i) + '.html'
             # print(url_page)
             return url_page
@@ -110,7 +111,7 @@ songs_tag = soup_url(artist_url, "div", "class", "ranking-lista")
 song_title = get_specific_url(songs_tag, r"\d+\. \w.* - ")
 song_url = 'https://www.tekstowo.pl/piosenka,' + artist_name + ',' + song_title + '.html'
 
-def text_translation():
+# def text_translation():
 
 # get song text and translation
 song_tag = soup_url(song_url, "div", "class", "song-text")
@@ -118,7 +119,7 @@ song_text = soup_song(song_tag, "p")
 
 translation_tag = soup_url(song_url, "div", "id", "translation")
 translation_text = soup_song(translation_tag, "p")
-
+print(song_url)
 ################################################################
 '''
 for x in clean_list(artists_tag):
@@ -127,8 +128,6 @@ for x in clean_list(artists_tag):
     # create artists urls
     '''
 
-# artist_url = 'https://www.tekstowo.pl/piosenki_artysty,' + artist_name + '.html'
-# songs_tag = soup_url(artist_url, "div", "class", "ranking-lista")
 '''
 for y in clean_list(songs_tag):
     song_remove_initial = re.sub(r"\d+\. \w.* - ", "", y)
@@ -143,24 +142,25 @@ translation_text = soup_song(translation_tag, "p")
 '''
 # get both, translation and songtext:
 # both = soup_url(song_url, "div", "class", "tekst")
+
 # append collected data
-records.append((song_text, translation_text, song_title, artist_name, song_url))
-print(song_url)
+# records.append((song_text, translation_text, song_title, artist_name, song_url))
+# print(song_url)
 # print(artist_name)
 # print(song_title)
 # print(translation_text)
-print(song_text)
+# print(song_text)
 
-# needed for not getting blocked on a server:
+# needed for scrap pace:
 sleep(randint(2, 10))
 
 ################################################################
 
-# create a data framework
-df = pd.DataFrame(records, columns=['song_text', 'translation_text', 'song_title', 'artist_name', 'song_url'])
-df.to_csv('tekstowo_data.csv', index=False, encoding='utf-8')
+# create a data frame
+# df = pd.DataFrame(records, columns=['song_text', 'translation_text', 'song_title', 'artist_name', 'song_url'])
+# df.to_csv('tekstowo_data.csv', index=False, encoding='utf-8')
 
-print('Data has been saved.')
+# print('Data has been saved.')
 
 
 # def get_urls():
