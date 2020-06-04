@@ -5,9 +5,11 @@ import pandas as pd
 import re
 import string
 from time import sleep
+import random
 from random import randint
 import logging
 from itertools import cycle
+from lxml.html import fromstring
 
 
 # error logging configuration
@@ -23,7 +25,7 @@ driver.find_element_by_xpath('/html/body/div[1]/div[3]/div[8]/div[3]/div[1]/a').
 '''
 
 records = []
-alphabet = ['A', 'B']
+alphabet = ['C', 'D']
 # alphabet = list(string.ascii_uppercase)
 
 
@@ -38,10 +40,6 @@ def get_proxies():
             proxy = ":".join([i.xpath('.//td[1]/text()')[0], i.xpath('.//td[2]/text()')[0]])
             proxies.add(proxy)
     return proxies
-
-
-proxies = get_proxies()
-proxy_pool = cycle(proxies)
 
 
 def clean_list(clean_soup):
@@ -87,19 +85,27 @@ def soup_url(request_url, tag, tag_class, tag_element):
     """
     Function to request.get a URL and convert it to a BeautifulSoup object.
     :param request_url: str
-    :param div_tag: str
-    :param class_tag: str
-    :param element_tag: str
+    :param tag: str
+    :param tag_class: str
+    :param tag_element: str
     :return: str; tags
     """
 
-    r = requests.get(request_url)
-    # to get Polish diacritics correctly written:
-    r.encoding = r.apparent_encoding
-    soup = BeautifulSoup(r.text, 'lxml')
-    # get the specific tag: element
-    found = soup.find(tag, {tag_class: tag_element})
-    return found
+    for user_agent in range(1, 10):
+        proxy = next(proxy_pool)
+        proxies = {"http://": proxy, "https://": proxy}
+        user_agent = random.choice(user_agent_list)
+        s = requests.Session()
+        s.max_redirects = 60
+        s.headers['User-Agent'] = user_agent
+        # headers = {"User-Agent": user_agent}
+        r = s.get(request_url, proxies=proxies, headers=s.headers, allow_redirects=3)
+        # to get Polish diacritics correctly written:
+        r.encoding = r.apparent_encoding
+        soup = BeautifulSoup(r.text, 'lxml')
+        # get the specific tag: element
+        found = soup.find(tag, {tag_class: tag_element})
+        return found
 
 
 def soup_song(song, tag):
@@ -113,11 +119,43 @@ def soup_song(song, tag):
     return clean_trailing_text
 
 
+proxies = get_proxies()
+proxy_pool = cycle(proxies)
+
+user_agent_list = [
+    # Chrome
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 5.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
+    # Firefox
+    'Mozilla/4.0 (compatible; MSIE 9.0; Windows NT 6.1)',
+    'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
+    'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)',
+    'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko',
+    'Mozilla/5.0 (Windows NT 6.2; WOW64; Trident/7.0; rv:11.0) like Gecko',
+    'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko',
+    'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/5.0)',
+    'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko',
+    'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)',
+    'Mozilla/5.0 (Windows NT 6.1; Win64; x64; Trident/7.0; rv:11.0) like Gecko',
+    'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)',
+    'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)',
+    'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)'
+]
+
 for letter in alphabet:
     general_url = 'https://www.tekstowo.pl/artysci_na,' + letter
 
     # number of sub-pages to scrap:
-    for i in range(2, 10):
+    for i in range(1, 6):
         url_page = general_url + ',strona,' + str(i) + '.html'
         artists_tag = soup_url(url_page, "div", "class", "content")
         # r = requests.get(url_page)
@@ -170,7 +208,7 @@ for letter in alphabet:
                     song_text = soup_song(text_tag, "p")
                     translation_tag = soup_url(song_url, "div", "id", "translation")
                     translation_text = soup_song(translation_tag, "p")
-                except AttributeError as attr:
+                except (requests.exceptions.TooManyRedirects, requests.exceptions.ConnectionError, requests.TooManyRedirects, AttributeError) as attr:
                     logger.error(attr)
                     print("AttributeError:NoneType error for " + song_url)
                 else:
