@@ -17,8 +17,9 @@ logging.basicConfig(filename='/home/subo/PycharmProjects/webscrap_tekstowo/error
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
 logger = logging.getLogger(__name__)
 
+# records = crawled and appended data
 records = []
-alphabet = ['C', 'D']
+alphabet = ['G', 'H']
 # alphabet = list(string.ascii_uppercase)
 
 
@@ -107,6 +108,12 @@ def soup_url(request_url, tag, tag_class, tag_element):
 
 
 def soup_song(song, tag):
+    """
+    needed for song page. create a BS4 object and perform action on it
+    :param song:
+    :param tag:
+    :return:
+    """
 
     soup = BeautifulSoup(song.text, 'lxml')
     # get the specific tag: element
@@ -117,9 +124,11 @@ def soup_song(song, tag):
     return clean_trailing_text
 
 
+# proxy list + random address selection:
 proxies = get_proxies()
 proxy_pool = cycle(proxies)
 
+# headers for user_agent in "def soup_url":
 user_agent_list = [
     # Chrome
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
@@ -149,13 +158,15 @@ user_agent_list = [
     'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)'
 ]
 
+# loop through alphabet list
 for letter in alphabet:
     general_url = 'https://www.tekstowo.pl/artysci_na,' + letter
 
-    # number of sub-pages to scrap:
+    # loop through number of sub-pages to scrap:
     for i in range(1, 6):
         url_page = general_url + ',strona,' + str(i) + '.html'
         artists_tag = soup_url(url_page, "div", "class", "content")
+        # loop through artist pages
         for x in clean_list(artists_tag):
             artist_remove_initial = re.sub(r"\d+\. ", "", x)
             artist_name = normalize_list(artist_remove_initial)
@@ -163,29 +174,32 @@ for letter in alphabet:
             # create artists urls
             artist_url = 'https://www.tekstowo.pl/piosenki_artysty,' + artist_name + '.html'
             songs_tag = soup_url(artist_url, "div", "class", "ranking-lista")
-            # print(artist_name)
 
+            # loop through songs pages:
             for y in clean_list(songs_tag):
                 song_remove_initial = re.sub(r"\d+\. \w.* - ", "", y)
                 song_title = normalize_list(song_remove_initial)
                 song_url = 'https://www.tekstowo.pl/piosenka,' + artist_name + ',' + song_title + '.html'
                 text_tag = soup_url(song_url, "div", "class", "song-text")
+                # handle errors:
                 try:
                     song_text = soup_song(text_tag, "p")
                     translation_tag = soup_url(song_url, "div", "id", "translation")
                     translation_text = soup_song(translation_tag, "p")
-                except (requests.exceptions.TooManyRedirects, requests.exceptions.ConnectionError, requests.TooManyRedirects, AttributeError) as attr:
-                    logger.error(attr)
+                except AttributeError as err:
+                    # log all errors:
+                    logger.error(err)
                     print("AttributeError:NoneType error for " + song_url)
                 else:
+                    # append all data
                     records.append((song_text, translation_text, song_title, artist_name, song_url))
                     print(song_url)
-                    # needed for not getting blocked on a server:
+                    # set scrapping pace:
                     sleep(randint(2, 9))
 
 ######################
 # save the crawled data to a DataFrame:
 df = pd.DataFrame(records, columns=['song_text', 'translation_text', 'song_title', 'artist_name', 'song_url'])
-df.to_csv('tekstowo_data.csv', index=False, encoding='utf-8')
+df.to_csv('tekstowo_dataGH1-5.csv', index=False, encoding='utf-8')
 
 print('Data has been saved.')
