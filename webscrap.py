@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 # records = crawled and appended data
 records = []
-alphabet = ['G', 'H']
+alphabet = ['S', 'T']
 # alphabet = list(string.ascii_uppercase)
 
 
@@ -200,6 +200,6 @@ for letter in alphabet:
 ######################
 # save the crawled data to a DataFrame:
 df = pd.DataFrame(records, columns=['song_text', 'translation_text', 'song_title', 'artist_name', 'song_url'])
-df.to_csv('tekstowo_dataGH1-5.csv', index=False, encoding='utf-8')
+df.to_csv('tekstowo_dataQR1-5.csv', index=False, encoding='utf-8')
 
 print('Data has been saved.')
