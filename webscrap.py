@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 # records = crawled and appended data
 records = []
-alphabet = ['S', 'T']
+alphabet = ['pozostale']
 # alphabet = list(string.ascii_uppercase)
 
 
@@ -163,7 +163,7 @@ for letter in alphabet:
     general_url = 'https://www.tekstowo.pl/artysci_na,' + letter
 
     # loop through number of sub-pages to scrap:
-    for i in range(1, 6):
+    for i in range(10, 16):
         url_page = general_url + ',strona,' + str(i) + '.html'
         artists_tag = soup_url(url_page, "div", "class", "content")
         # loop through artist pages
@@ -187,7 +187,7 @@ for letter in alphabet:
                     translation_tag = soup_url(song_url, "div", "id", "translation")
                     translation_text = soup_song(translation_tag, "p")
                 except AttributeError as err:
-                    # log all errors:
+                    # log errors:
                     logger.error(err)
                     print("AttributeError:NoneType error for " + song_url)
                 else:
@@ -200,6 +200,6 @@ for letter in alphabet:
 ######################
 # save the crawled data to a DataFrame:
 df = pd.DataFrame(records, columns=['song_text', 'translation_text', 'song_title', 'artist_name', 'song_url'])
-df.to_csv('tekstowo_dataQR1-5.csv', index=False, encoding='utf-8')
+df.to_csv('tekstowo_dataO1-5.csv', index=False, encoding='utf-8')
 
 print('Data has been saved.')
