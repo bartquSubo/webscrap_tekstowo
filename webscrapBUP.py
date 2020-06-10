@@ -25,7 +25,7 @@ driver.find_element_by_xpath('/html/body/div[1]/div[3]/div[8]/div[3]/div[1]/a').
 '''
 
 records = []
-alphabet = ['C', 'D']
+alphabet = ['E', 'F']
 # alphabet = list(string.ascii_uppercase)
 
 
