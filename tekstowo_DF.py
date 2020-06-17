@@ -12,7 +12,7 @@ all_csv = glob.glob(os.path.join(path, "*.csv"))
 missing_values = ["<p> \n</p>"]
 concatenated_df = pd.concat((pd.read_csv(f, na_values=missing_values) for f in all_csv), ignore_index=True)
 
-# convert to another DF, not Series (mind the double [[]]):
+# convert to another DF, not Series (mind the difference between [] and [[]]):
 song_text = concatenated_df["song_text"]\
     .str.findall("\w.*")
 
@@ -29,13 +29,13 @@ for text in song_text:
     except:
         print("No language detected!")
     else:
-        detected_lang.append(detection)
+        detected_lang.append((detection, joined))
 
 # create a dataFrame of each song
-lang_detect = pd.DataFrame(detected_lang, columns=["language"])
+lang_detect = pd.DataFrame(detected_lang, columns=["language", "song_text"])
 print(lang_detect.head(20))
 lang_detect.to_csv("detected_lang1.csv", index=True)
-print("detected_lang1.csv saved")
+print("song_text_language.csv saved")
 
 
 
