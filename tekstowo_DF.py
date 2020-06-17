@@ -11,6 +11,8 @@ all_csv = glob.glob(os.path.join(path, "*.csv"))
 # converting html tags "<p> \n</p>" to NaN:
 missing_values = ["<p> \n</p>"]
 concatenated_df = pd.concat((pd.read_csv(f, na_values=missing_values) for f in all_csv), ignore_index=True)
+# save concatenated_df
+concatenated_df.to_csv("songs_data.csv")
 
 # convert to another DF, not Series (mind the difference between [] and [[]]):
 song_text = concatenated_df["song_text"]\
@@ -22,21 +24,19 @@ for text in song_text:
     # removing Poznaj historię zmian tego tekstu </p> from each cell
     # & create back full text of a song:
     joined = " ".join(text[0:][:-2])
-
     # detect language for each song:
     try:
         detection = detect(joined)
     except:
         print("No language detected!")
     else:
-        detected_lang.append((detection, joined))
+        detected_lang.append(detection)
 
 # create a dataFrame of each song
-lang_detect = pd.DataFrame(detected_lang, columns=["language", "song_text"])
+lang_detect = pd.DataFrame(detected_lang, columns=["language"])
 print(lang_detect.head(20))
-lang_detect.to_csv("detected_lang1.csv", index=True)
+lang_detect.to_csv("song_text_language.csv", index=True)
 print("song_text_language.csv saved")
-
 
 
 
