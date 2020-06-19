@@ -11,23 +11,43 @@ df["translation_text"] = df["translation_text"].str.replace(r"<p>", "")
 df["translation_text"] = df["translation_text"].str.replace(r"(\s)*Tłumaczenie:((.|\n)*)", "")
 df["translation_text"] = df["translation_text"].str.replace(r"(\s)*Poznaj historię zmian tego tłumaczenia((.|\n)*)", "")
 
-df_translation = df["translation_text"]
+# add ids for each row
+df["ids"] = range(1, len(df) + 1)
 
+# df_notnumll_translations = df[df['translation_text'].notnull()]
+# df_translation = (df_notnumll_translations[["translation_text", "ids"]])
+# print(df_translation.info())
+
+# df_translation.to_csv("temp_translation.csv")
+# print(df_translation)
+# print(df_translation.info())
+# print(df_translation.tail(20))
+df_translation = pd.read_csv(path + "temp_translation.csv")
 # detect language of translation
 detected_lang = []
-for text in df_translation:
-    song_url = df["song_url"]
+for text in df_translation["translation_text"]:
     try:
-        detection = detect(text)
+        if None:
+            detection = "no_lang"
+        else:
+            detection = detect(text)
     except:
-        detection = "no_lang"
+        # detection = "no_lang"
+        print("no lang detected for :\n{}".format(text))
     else:
-        detected_lang.append((detection, song_url))
+        detected_lang.append(detection)
 
-lang_detect = pd.DataFrame(detected_lang, columns=["language_translation", "song_url"])
-print(lang_detect.tail(20))
-lang_detect.to_csv("translation_text_language.csv", index=True)
-print("translation_text_language.csv saved")
+lang_detect = pd.DataFrame(detected_lang, columns=["language_translation"])
+# lang_detect.append({"language_translation": "pl"}, ignore_index=True)
+# print(lang_detect.info())
+# print("\n")
+
+concatenated = pd.concat([df_translation, lang_detect], axis=1, sort=False)
+print(concatenated.info())
+print(concatenated.tail(20))
+
+# lang_detect.to_csv("translation_text_language.csv", index=True)
+# print("translation_text_language.csv saved")
 
 '''
 df = df[df['song_text'].notnull() & (df['language'] == "pl")]
