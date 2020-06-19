@@ -14,15 +14,14 @@ df["translation_text"] = df["translation_text"].str.replace(r"(\s)*Poznaj histor
 # add ids for each row
 df["ids"] = range(1, len(df) + 1)
 
+# get only rows with translation text with their ids from the general DF:
 # df_notnumll_translations = df[df['translation_text'].notnull()]
 # df_translation = (df_notnumll_translations[["translation_text", "ids"]])
-# print(df_translation.info())
 
+# need to save df_translation and change manually 2 cells as they were still empty:
 # df_translation.to_csv("temp_translation.csv")
-# print(df_translation)
-# print(df_translation.info())
-# print(df_translation.tail(20))
 df_translation = pd.read_csv(path + "temp_translation.csv")
+
 # detect language of translation
 detected_lang = []
 for text in df_translation["translation_text"]:
@@ -32,16 +31,11 @@ for text in df_translation["translation_text"]:
         else:
             detection = detect(text)
     except:
-        # detection = "no_lang"
         print("no lang detected for :\n{}".format(text))
     else:
         detected_lang.append(detection)
 
 lang_detect = pd.DataFrame(detected_lang, columns=["language_translation"])
-# lang_detect.append({"language_translation": "pl"}, ignore_index=True)
-# print(lang_detect.info())
-# print("\n")
-
 concatenated = pd.concat([df_translation, lang_detect], axis=1, sort=False)
 print(concatenated.info())
 print(concatenated.tail(20))
