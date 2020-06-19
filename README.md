@@ -1,5 +1,5 @@
 # webscrap_tekstowo
-A project to create an anutomatic song lyrics generator.
+A project to create an automatic song lyrics generator.
 
 Training data obtained from www.tekstowo.pl (webscrapping)
 
