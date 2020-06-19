@@ -37,17 +37,18 @@ for text in df_translation["translation_text"]:
 
 lang_detect = pd.DataFrame(detected_lang, columns=["language_translation"])
 concatenated = pd.concat([df_translation, lang_detect], axis=1, sort=False)
-print(concatenated.info())
-print(concatenated.tail(20))
+# print(concatenated.info())
+# print(concatenated.tail(20))
 
 # lang_detect.to_csv("translation_text_language.csv", index=True)
 # print("translation_text_language.csv saved")
 
+merged_df = pd.merge(df, concatenated["language_translation"], on='ids')
+print(merged_df.info())
+print(merged_df.tail(50))
+
 '''
 df = df[df['song_text'].notnull() & (df['language'] == "pl")]
-translation = df[df['translation_text'].notnull()]
-# print(df["song_text"])
-print(translation["translation_text"])
 # print a specific call by index:
 # print(df.iloc[18]["song_text"])
 '''
