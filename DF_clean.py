@@ -13,6 +13,8 @@ df["translation_text"] = df["translation_text"].str.replace(r"(\s)*Poznaj histor
 
 # add ids for each row
 df["ids"] = range(1, len(df) + 1)
+# add a value "en" to a cell with index/column (earlier omitted):
+df.at[17909, "language"] = "en"
 
 # get only rows with translation text with their ids from the general DF:
 # df_notnumll_translations = df[df['translation_text'].notnull()]
@@ -43,12 +45,14 @@ concatenated = pd.concat([df_translation, lang_detect], axis=1, sort=False)
 # lang_detect.to_csv("translation_text_language.csv", index=True)
 # print("translation_text_language.csv saved")
 
-merged_df = pd.merge(df, concatenated["language_translation"], on='ids')
+merged_df = pd.merge(df, concatenated, how="outer", on="ids")
 print(merged_df.info())
-print(merged_df.tail(50))
+# print(merged_df.tail(50))
+print(merged_df[['ids', 'song_text', 'translation_text_x', 'song_title', 'artist_name', 'song_url', 'language', 'language_translation']].head(30))
+# print(merged_df.iloc[17909]["language"])
 
 '''
+# print(df.iloc[18]["song_text"])
 df = df[df['song_text'].notnull() & (df['language'] == "pl")]
 # print a specific call by index:
-# print(df.iloc[18]["song_text"])
 '''
