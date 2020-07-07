@@ -45,11 +45,12 @@ concatenated = pd.concat([df_translation, lang_detect], axis=1, sort=False)
 # print("translation_text_language.csv saved")
 
 merged_df = pd.merge(df, concatenated, how="outer", on="ids")
-print(merged_df.info())
-print(merged_df[['ids', 'song_text', 'translation_text_x', 'song_title', 'artist_name', 'song_url', 'language', 'language_translation']].head(30))
+# print(merged_df.info())
+# print(merged_df[['ids', 'song_text', 'translation_text_x', 'song_title', 'artist_name', 'song_url', 'language', 'language_translation']].head(30))
+headers = ['ids', 'song_text', 'translation_text_x', 'song_title', 'artist_name', 'song_url', 'language', 'language_translation']
 # print(merged_df.iloc[17909]["language"])
-merged_df.to_csv("all_data_clean.csv")
-
+merged_df.to_csv("all_data_clean_new.csv", columns=headers)
+print("df saved")
 '''
 # print(df.iloc[18]["song_text"])
 df = df[df['song_text'].notnull() & (df['language'] == "pl")]
